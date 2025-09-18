@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Link</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe Ui', Roboto, Oxygen, Ubuntu, Cantarell, 'Opens Sans';
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+        input [type="text"] {
+            padding: 12px;
+            width: calc(100% - 24px);
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        input [type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        button {
+            padding: 12px 25x;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            backgroud-color: #0056b3;
+        }
+        #resultado {
+            margin-top: 30px;
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        #copiar {
+            margin-left: 10px;
+            background-color: #28a745;
+        }
+        #copiar:hover {
+            background-color: #1e7e34;
+        }
+        </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Gerador de Link</h2>
+        <p>Digite o nome completo do aniversariante e clique em gerar.</p>
+        <input type="text" id="nomeAluno" placeholder="Nome completo do aniversariante">
+        <br>
+        <button onclick="gerarLink()">Gerar Link</button>
+        <div id="resultado" stye="display: none;">
+            <p style="margin-bottom: 10px;"><strong>LinK Gerado (valido por 24h)</p>
+            <span id="linkGerado"></span>
+            <button id="copiar" onclick="copiarLink()">Copiar</button>
+        </div>
+    </div>
+
+    <script>
+        async function gerarLink(){
+            const nome = document.getElementById('nomeAluno').value;
+            if (!nome) {
+                alert('Por favor, digite o nome do aluno.');
+                return;
+            }
+                const backendUrl = 'http://localhost:3000/api/gerar-link-publico';
+
+                try {
+                    const botao = document.querySelector('Button');
+                    botao.innterText = 'Gerando...';
+                    botao.disabled = true;
+
+                    const response = await fetch (backendUrl, {
+                        method: 'POST',
+                        headers: { 'content-Type': 'application/json'},
+                        body: JSON.stringify({ nome: nome})
+                   });
+
+                   const data = await response.json();
+
+                   if (data.success){
+                        document.getElementById('linkGerado').innerText = data.link;
+                        document.getElementById('resultado').style.display = 'block';
+                   } else {
+                    alert ('Erro ao gerar o link: ' + data.error);
+                   }
+
+                } catch (error) {
+                    alert('Não foi possivel conectar ao servidor. Verifique se o backend está rodando e tente novamente.')
+                    console.error('Erro de rede', error);
+                } finally {
+                    const botao = document.querySelector('button');
+                    botao.innerText = 'Gerar Link';
+                    botao.disabled = false;
+                }
+        }
+    </script>
+</body>
+</html>
